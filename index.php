@@ -6,8 +6,8 @@
 $er=$_GET['file'];
 $dr=$_GET['dir'];
 $drr=$_GET['dirr'];
+$inf=$_GET['info'];
 $pl=$_POST['playlist'];
-$pl1=$_POST['pllst'];
 $pfil = $_POST['files'];
 $tpfil = $_POST['tfiles'];
 if (mb_detect_encoding ($er, '', true) !='UTF-8') {$er = iconv('cp1251', 'utf-8', $er);}
@@ -235,10 +235,15 @@ $fd = fopen ($fileName, 'wb');
 $out = fwrite ($fd, $createZip->getZippedfile());
 fclose ($fd);
 $createZip->forceDownload($fileName);  
+}} elseif ($inf!='') {
+require_once('js/getid3/getid3.php');
+$getID3 = new getID3;
+$inf = iconv('utf-8', 'cp1251', $inf);
+$fi = $getID3->analyze('/opserv/domains/'.$_SERVER['HTTP_HOST'].$inf);
+getid3_lib::CopyTagsToComments($fi);
 
-
-
-}} else {
+echo '<center>'.iconv('cp1251', 'utf-8', (iconv('utf-8', 'iso-8859-1', $fi[comments][artist][0]))).' - '.iconv('cp1251', 'utf-8', (iconv('utf-8', 'iso-8859-1', $fi[comments][title][0]))).'</center>Тип:'.$fi[audio][bitrate_mode].' '.round($fi[audio][bitrate]/1000).'к/бит '.$fi[audio][sample_rate].'кГц Каналы:'.$fi[audio][channelmode];
+} else {
 ?>
 <!doctype html >
   <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="ru-ru">
@@ -327,8 +332,15 @@ function run (nam, idd) {
 	
 
 	if (nam.substr (nam.length-4, 4)==".mp3") {
-		clse (1);
-	document.getElementById('titl').innerHTML=nam;
+	clse (1);
+	$.ajax({
+	type: "GET",
+	url: ('/?info='+encodeURIComponent (nam)),
+	cache: false,
+	success: function (msg1){
+	document.getElementById('titl').innerHTML=msg1;
+	}});
+	
 	if (document.cookie.indexOf ('vol=')!=-1) {
 		var volume1 =0.01*(parseInt((document.cookie.substring (document.cookie.indexOf ('vol=')+4, document.cookie.length))));} else { var volume1 = 0.5;}
 		 $("#jquery_jplayer_1").jPlayer({
@@ -388,6 +400,12 @@ jwplayer("mediaplayer").setup({
  		(function(DGPlayer){
 		if (document.cookie.indexOf ('vol=')!=-1) {
 		DGPlayer.volume =parseInt((document.cookie.substring (document.cookie.indexOf ('vol=')+4, document.cookie.length)));} else { DGPlayer.volume = 50;}
+		DGPlayer.songTitle='';
+		DGPlayer.songArtist='';
+		DGPlayer.coverArt = '/img/fallback_album_art.png';
+		DGPlayer.duration=0;
+		DGPlayer.bufferProgress=0;
+		DGPlayer.seekTime=0;
 		player = new DGAuroraPlayer(AV.Player.fromURL('http://'+document.domain+'/'+encodeURI(nam)), DGPlayer);
 		player.player.on ('end', function() {
 		player.disconnect(); $(player).remove(); next (window.idd);});
@@ -579,7 +597,7 @@ $('.ui-state-default').mousedown(function(eventObject){window.gh=$(this).index()
 			window.location.href = encodeURI(fd);
 			 } },
             {label:'Скопировать ссылку', icon:'img/icons/receipt-text.png', action:function() { 
-			fd=document.getElementById('playlist').children[window.gh].title;
+			fd=(document.getElementById('playlist').children[window.gh].title).replace (/&/g, "R494");
 			prompt("Ссылка на файл:","http://"+document.domain+"/?file="+fd); } }
           ]
         });
@@ -595,7 +613,6 @@ plpr (msg1);
 }});
 
 } else if ((ffil.lastIndexOf ("/")+1)==(ffil.length)) {   //добавление файлов папками и подпапками
-		
 		$.get(ffil, {}, function(data1) {
 		var i=0, i1=0;
 		do {
@@ -617,7 +634,7 @@ plpr (msg1);
 			window.location.href = encodeURI(fd);
 			 } },
             {label:'Скопировать ссылку', icon:'img/icons/receipt-text.png', action:function() { 
-			fd=document.getElementById('playlist').children[window.gh].title;
+			fd=(document.getElementById('playlist').children[window.gh].title).replace (/&/g, "R494");
 			prompt("Ссылка на файл:","http://"+document.domain+"/?file="+fd); } }
           ]
         });
@@ -654,7 +671,7 @@ plpr (msg1);
 			window.location.href = encodeURI(fd);
 			 } },
             {label:'Скопировать ссылку', icon:'img/icons/receipt-text.png', action:function() { 
-			fd=document.getElementById('playlist').children[window.gh].title;
+			fd=(document.getElementById('playlist').children[window.gh].title).replace (/&/g, "R494");
 			prompt("Ссылка на файл:","http://"+document.domain+"/?file="+fd); } }
           ]
         });
@@ -959,7 +976,7 @@ $.fn.contextPopup = function(menuData) {
 	$('.jqueryFileTree LI.ext_m3u').contextPopup({
           items: [
             {label:'Скопировать ссылку', icon:'img/icons/receipt-text.png', action:function() { 
-			prompt("Ссылка на файл:","http://"+document.domain+"/?file="+ii); } }
+			prompt("Ссылка на файл:","http://"+document.domain+"/?file="+(ii).replace (/&/g, "R494")); } }
           ]
         });
 	var if1;
@@ -977,10 +994,10 @@ $.fn.contextPopup = function(menuData) {
 			if1.css ('color','#CF2323');
 			 } },
 			 {label:'Скопировать ссылку', icon:'img/icons/bin-metal.png', action:function() {
-				prompt("Ссылка на папку:","http://"+document.domain+"/?dir="+if1.attr('rel'));
+				prompt("Ссылка на папку:","http://"+document.domain+"/?dir="+(if1.attr('rel')).replace (/&/g, "R494"));
 			 } },
 			 {label:'Скопировать ссылку с подпапками', icon:'img/icons/bin-metal.png', action:function() {
-				prompt("Ссылка на папку:","http://"+document.domain+"/?dirr="+if1.attr('rel'));
+				prompt("Ссылка на папку:","http://"+document.domain+"/?dirr="+(if1.attr('rel')).replace (/&/g, "R494"));
 			 } }
           ]
         });
@@ -1110,10 +1127,7 @@ $.fn.contextPopup = function(menuData) {
 	}
 	while (k1<$('ul#playlist li').length);
 	$('#pl1').val(re);
-	})
-
-	
-	
+	});
     $('.td3').fileTree({ root: '/res/' },  function(file) { //клик по файлу
 
 appen (file, 0);
@@ -1123,12 +1137,15 @@ appen (file, 0);
  
 <?php 
 if ($dr!='') {
+$dr = str_replace ('R494', "&", $dr);
 echo "appen ('".$dr."');  setTimeout (function () {next(-1);}, 2000);";
 }
 if ($drr!='') {
+$drr = str_replace ('R494', "&", $drr);
 echo "appen ('".$drr."', 1);  setTimeout (function () {next(-1);}, 2000);";
 }
 if ($er !='') {
+$er = str_replace ('R494', "&", $er);
 if (substr ($er, strripos($er, ".")+1)=='m3u') {
 echo "appen ('".$er."');  setTimeout (function () {next(-1);}, 2000);";
 
@@ -1141,7 +1158,7 @@ window.elem=window.elem+1;
         $('.ui-state-default').contextPopup({
           items: [
             {label:'Скачать', icon:'img/icons/shopping-basket.png', action:function() { window.location.href ='".$er."'; } },
-            {label:'Скопировать ссылку', icon:'img/icons/receipt-text.png', action:function() { prompt('Ссылка на файл:','http://".$_SERVER['HTTP_HOST']."/?file='+'".$er."'); } }
+            {label:'Скопировать ссылку', icon:'img/icons/receipt-text.png', action:function() { prompt('Ссылка на файл:','http://".$_SERVER['HTTP_HOST']."/?file='+('".$er."').replace (/&/g, 'R494')); } }
           ]
         });
       });
@@ -1218,8 +1235,8 @@ window.elem=window.elem+1;
         <img src="/img/fallback_album_art.png">
     </div>
 
-    <span class="title">Unknown Title</span>
-    <span class="artist">Unknown Artist</span>
+    <span class="title"></span>
+    <span class="artist"></span>
 
     <div class="button"></div>
 
@@ -1242,7 +1259,7 @@ window.elem=window.elem+1;
     </div>
     
     <div class="file_button"></div>
-    <span class="file_description">Flac - идеальный звук, без потерь</span>
+    <span class="file_description">Формат fLaC. Вы слушаете трек в максимальном качестве.</span>
 </div>
 </div>
 
@@ -1471,6 +1488,6 @@ window.elem=window.elem+1;
 <script src="js/cors/jquery.xdr-transport.js"></script>
 <![endif]-->
 <div id="bottom" >Masters ©copyright</div>
-<div align="center"><script type="text/javascript" src="http://jj.revolvermaps.com/2/2.js?i=9n3z9c9mhpq&amp;m=8&amp;s=178&amp;c=00ff6c&amp;t=1" async="async"></script></div>
+<div align="center"><script type="text/javascript" src="http://jj.revolvermaps.com/2/2.js?i=&amp;m=8&amp;s=178&amp;c=00ff6c&amp;t=1" async="async"></script></div>
 </body>
 </html><?php } ?>

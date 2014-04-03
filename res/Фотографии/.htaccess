@@ -1,0 +1,5 @@
+
+AuthUserFile C:\opserv\domains\master255.no-ip.org\.htpasswd
+AuthName "Enter password:" 
+AuthType Basic
+require valid-user
