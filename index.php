@@ -3,16 +3,18 @@
 //Создаём папку в том месте где должна быть ссылка.
 // Создаём там же символическую ссылку на эту папку с помощью программы link shell extension.
 // Заходим в свойства и меняем цель на сетевой путь. Всё.
-$er=$_GET['file'];
-$dr=$_GET['dir'];
-$drr=$_GET['dirr'];
-$inf=$_GET['info'];
-$pl=$_POST['playlist'];
-$pfil = $_POST['files'];
-$tpfil = $_POST['tfiles'];
-if (mb_detect_encoding ($er, '', true) !='UTF-8') {$er = iconv('cp1251', 'utf-8', $er);}
-if (mb_detect_encoding ($dr, '', true) !='UTF-8') {$dr = iconv('cp1251', 'utf-8', $dr);}
-if (mb_detect_encoding ($drr, '', true) !='UTF-8') {$drr = iconv('cp1251', 'utf-8', $drr);}
+$er=''; $dr=''; $drr=''; $inf=''; $pl='';
+$pfil=''; $tpfil='';
+if (isset ($_GET['file'])) {$er=$_GET['file'];}
+if (isset ($_GET['dir'])) {$dr=$_GET['dir'];}
+if (isset ($_GET['dirr'])) {$drr=$_GET['dirr'];}
+if (isset ($_GET['info'])) {$inf=$_GET['info'];}
+if (isset ($_POST['playlist'])) {$pl=$_POST['playlist'];}
+if (isset ($_POST['files'])) {$pfil = $_POST['files'];}
+if (isset ($_POST['tfiles'])) {$tpfil = $_POST['tfiles'];}
+if (mb_detect_encoding ($er, null, true) !='UTF-8') {$er = iconv('cp1251', 'utf-8', $er);}
+if (mb_detect_encoding ($dr, null, true) !='UTF-8') {$dr = iconv('cp1251', 'utf-8', $dr);}
+if (mb_detect_encoding ($drr, null, true) !='UTF-8') {$drr = iconv('cp1251', 'utf-8', $drr);}
 if ($pl!='') {
 $pl = iconv('utf-8', 'cp1251', $pl);
 $fsize=strlen ($pl);
@@ -27,7 +29,7 @@ $fill = str_replace ('R493', "'", $fill);
 $filesiz=0;
 foreach ($fill as $fill1)
 {
-$filesiz = $filesiz+ filesize('/opserv/domains/'.$_SERVER['HTTP_HOST'].iconv('utf-8', 'cp1251', $fill1));
+$filesiz = $filesiz+ filesize('/OpenServer/domains/'.$_SERVER['HTTP_HOST'].iconv('utf-8', 'cp1251', $fill1));
 if ($filesiz>300000000) {echo '0'; break;}
 }
 if ($filesiz<300000000) {echo '1';}
@@ -218,7 +220,7 @@ $createZip = new createZip;
 $filesiz=0;
 foreach ($fill as $fill1)
 {
-$filesiz = $filesiz+ filesize('/opserv/domains/'.$_SERVER['HTTP_HOST'].iconv('utf-8', 'cp1251', $fill1));
+$filesiz = $filesiz+ filesize('/OpenServer/domains/'.$_SERVER['HTTP_HOST'].iconv('utf-8', 'cp1251', $fill1));
 if ($filesiz>300000000) {echo '<!doctype html >
   <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="ru-ru">
     <head>
@@ -227,10 +229,10 @@ if ($filesiz>300000000) {echo '<!doctype html >
 if ($filesiz<300000000) {
 foreach ($fill as $fill1)
 {
-$fileContents = file_get_contents('/opserv/domains/'.$_SERVER['HTTP_HOST'].iconv('utf-8', 'cp1251', $fill1));
+$fileContents = file_get_contents('/OpenServer/domains/'.$_SERVER['HTTP_HOST'].iconv('utf-8', 'cp1251', $fill1));
 $createZip->addFile($fileContents, iconv('utf-8', 'CP866//TRANSLIT//IGNORE', substr ($fill1, strripos ($fill1, '/')+1)));
 }
- $fileName = 'archive.zip';
+$fileName = 'archive.zip';
 $fd = fopen ($fileName, 'wb');
 $out = fwrite ($fd, $createZip->getZippedfile());
 fclose ($fd);
@@ -239,7 +241,7 @@ $createZip->forceDownload($fileName);
 require_once('js/getid3/getid3.php');
 $getID3 = new getID3;
 $inf = iconv('utf-8', 'cp1251', $inf);
-$fi = $getID3->analyze('/opserv/domains/'.$_SERVER['HTTP_HOST'].$inf);
+$fi = $getID3->analyze('/OpenServer/domains/'.$_SERVER['HTTP_HOST'].$inf);
 getid3_lib::CopyTagsToComments($fi);
 
 echo '<center>'.iconv('cp1251', 'utf-8', (iconv('utf-8', 'iso-8859-1', $fi[comments][artist][0]))).' - '.iconv('cp1251', 'utf-8', (iconv('utf-8', 'iso-8859-1', $fi[comments][title][0]))).'</center>Тип:'.$fi[audio][bitrate_mode].' '.round($fi[audio][bitrate]/1000).'к/бит '.$fi[audio][sample_rate].'кГц Каналы:'.$fi[audio][channelmode];
@@ -416,6 +418,7 @@ jwplayer("mediaplayer").setup({
 		else
 		if  ((nam.substr (nam.length-4, 4)==".wmv") || (nam.substr (nam.length-4, 4)==".mpg") || (nam.substr (nam.length-4, 4)==".avi") || (nam.substr (nam.length-4, 4)==".mp4") || (nam.substr (nam.length-4, 4)==".mkv")) {
 		clse (5);
+		if (navigator.userAgent.toLowerCase().match('chrome')&&(!navigator.userAgent.toLowerCase().match('opr'))) {next (window.idd);} else {
 		if ($('#player11').text().length<20) {
 		if (document.cookie.indexOf ('vol=')!=-1) {
 		var volum1 =parseInt(document.cookie.substring (document.cookie.indexOf ('vol=')+4, document.cookie.length)); } else {var volum1= 50;}
@@ -449,7 +452,7 @@ jwplayer("mediaplayer").setup({
 		plugin2.controls.currentPosition = 1}}
 		} , 4000);
 		plugin2.settings.volume = volum1;
-		} else { window.location.href = encodeURI(nam);}
+		}} else { window.location.href = encodeURI(nam);}
 		};
 function OnDSPlayStateChangeEvt(NewState)
 {
@@ -475,6 +478,7 @@ document.getElementById('img1').style.display = "none";
 		document.getElementById('img2').style.display = "none";
 		clearTimeout(waiter);
 		stt=0;
+		$('#gplay').slideDown('slow');
 }
 if (objc==1) {
 		document.getElementById('mediaplayer').style.display = "none"; //mp3 player
@@ -485,6 +489,7 @@ if (objc==1) {
 		if (plugin2) {plugin2.close(); $(plugin2).remove (); plugin2=false; $('#player11').html ('');}
 		$('#player11').hide();
 		$('#slide').hide();
+		$('#gplay').hide();
 		document.getElementById('img1').src="";
 		document.getElementById('img1').style.display = "none";
 		document.getElementById('img2').style.display = "none";
@@ -498,6 +503,7 @@ if (objc==2) {
 		if (plugin2) {plugin2.close(); $(plugin2).remove (); plugin2=false; $('#player11').html ('');}
 		$('#player11').hide();
 		$('#slide').hide();
+		$('#gplay').hide();
 		$('#player7').hide();
 		document.getElementById('img1').src="";
 		document.getElementById('img1').style.display = "none";
@@ -513,6 +519,7 @@ if (objc==3) {
 		$("#jquery_jplayer_1").jPlayer("destroy");
 		if (jwplayer()) {jwplayer().stop();}
 	    $('#player7').hide();
+		$('#gplay').hide();
 		$('#player9').hide();
 		if (plugin2) {plugin2.close(); $(plugin2).remove (); plugin2=false; $('#player11').html ('');}
 		$('#player11').hide();
@@ -527,6 +534,7 @@ if (objc==4) {
 		$("#jquery_jplayer_1").jPlayer("destroy");
 		if (jwplayer()) {jwplayer().stop();}
 	    $('#player7').hide();
+		$('#gplay').hide();
 		if (plugin2) {plugin2.close(); $(plugin2).remove (); plugin2=false; $('#player11').html ('');}
 		$('#player11').hide();
 		$('#slide').hide();
@@ -542,6 +550,7 @@ if (objc==5) {
 		if (jwplayer()) {jwplayer().stop();}
 	    $('#player7').hide();
 		$('#player9').hide();
+		$('#gplay').hide();
 		$('#slide').hide();
 		document.getElementById('img1').src="";
 		document.getElementById('img1').style.display = "none";
@@ -566,23 +575,23 @@ do {
 ress=msg.substring (msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1 ,msg.indexOf("<|>", msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1));
 ff=msg.indexOf("<|>", msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1);
 ff1=msg.indexOf("<|>", msg.indexOf("<|>", msg.indexOf("<|>", ff)+3)+3);
-if (ress.indexOf("/res/")<0) {
 rf=msg.substring (msg.indexOf("<|>", ff)+3, msg.indexOf("<|>", msg.indexOf("<|>", ff)+3));
+if (ress.indexOf("/res/")<0) {
 if (((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='flac') || ((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='mp3') || ((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='aac') || ((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='ogg')) { 
 kn=rf.substring (rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\')-2)-2)-2), rf.length);
 var dfg='';
 if ((kn.indexOf ('http://')!=-1)&&(kn.indexOf ('/res/Музыка/')!=-1)) {knn=kn.substring (kn.indexOf ('/res/Музыка/'), kn.length);} else {if (kn.indexOf('Музыка\\')==-1) {dfg='/res/Музыка/';} else {dfg='/res';}
 knn=dfg+kn.replace(/\\/g,'/');
 }
-$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+knn.replace(/'/g,"R493")+"\", $(this).index());' title=\""+knn.replace(/'/g,"R493")+"\">"+window.elem+". "+ress+"</li>");
+$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+knn.replace(/'/g,"R493")+"\", $(this).index());' title=\""+knn.replace(/'/g,"R493")+"\">"+ress+"</li>");
 } else {
 kn=rf.substring (rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\')-2)-2)-2), rf.length);
 var dfg='';
 if ((kn.indexOf ('http://')!=-1)&&(kn.indexOf ('/res/Клипы/')!=-1)) {knn=kn.substring (kn.indexOf ('/res/Клипы/'), kn.length);} else {if (kn.indexOf('Клипы\\')==-1) {dfg='/res/Клипы/';} else {dfg='/res';}
 knn=dfg+kn.replace(/\\/g,'/');}
-$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+knn.replace(/'/g,"R493")+"\", $(this).index());' title=\""+knn.replace(/'/g,"R493")+"\">"+window.elem+". "+ress+"</li>");}
+$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+knn.replace(/'/g,"R493")+"\", $(this).index());' title=\""+knn.replace(/'/g,"R493")+"\">"+ress+"</li>");}
 } else {
-$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+ress.replace(/'/g,"R493")+"\", $(this).index());' title=\""+ress.replace(/'/g,"R493")+"\">"+window.elem+". "+ress+"</li>");}
+$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+rf.replace(/'/g,"R493")+"\", $(this).index());' title=\""+rf.replace(/'/g,"R493")+"\">"+ress+"</li>");}
 		
 
 
@@ -625,7 +634,7 @@ plpr (msg1);
 			//Типы файлов для отображения	
 			if ((extt=='mpg') || (extt=='iso') || (extt=='mdf') || (extt=='mds') || (extt=='exe') || (extt=='wmv') || (extt=='mpeg') || (extt=='rar') || (extt=='zip') || (extt=='gif') || (extt=='jpeg') || (extt=='jpg') || (extt=='mp4') || (extt=='mp3') || (extt=='flv') || (extt=='mkv') || (extt=='flac') || (extt=='avi')) {
 			
-			$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+ffil.replace(/'/g,"R493")+fill.replace(/'/g,"R493")+"\", $(this).index());' title=\'"+ffil.replace(/'/g,"R493")+fill.replace(/'/g,"R493")+"\'>"+window.elem+". "+ffil+fill+"</li>");
+			$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+ffil.replace(/'/g,"R493")+fill.replace(/'/g,"R493")+"\", $(this).index());' title=\'"+ffil.replace(/'/g,"R493")+fill.replace(/'/g,"R493")+"\'>"+ffil+fill+"</li>");
 		$('.ui-state-default').mousedown(function(eventObject){window.gh=$(this).index();});
         $('.ui-state-default').contextPopup({
           items: [
@@ -661,7 +670,7 @@ plpr (msg1);
 		});
 		
 		} else {
-		$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+ffil.replace(/'/g,"R493")+"\", $(this).index());' title=\'"+ffil.replace(/'/g,"R493")+"\'>"+window.elem+". "+ffil+"</li>");
+		$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+ffil.replace(/'/g,"R493")+"\", $(this).index());' title=\'"+ffil.replace(/'/g,"R493")+"\'>"+ffil+"</li>");
 
 		$('.ui-state-default').mousedown(function(eventObject){window.gh=$(this).index();});
         $('.ui-state-default').contextPopup({
@@ -740,8 +749,125 @@ $(document).ready( function() {
 				scroll1=scroll2;
 				return false;
 			});
+		$(document).bind('keydown', function(e) {if (e.keyCode==32) {
+		if (window.idd>0) { if ($("#playlist li").eq(window.idd).offset().top>$(window).height()) {
+		scroll1=$(window).scrollTop();
+		$('body,html').animate({scrollTop:$("#playlist li").eq(window.idd).offset().top}, 100);}} return false;};});
 		
 		
+////////////////////////////////////////////////Модальное окно\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+(function($){
+
+	// Defining our jQuery plugin
+
+	$.fn.paulund_modal_box = function(prop){
+		// Default parameters
+		var options = $.extend({
+			height : "250",
+			width : "500",
+			title:"",
+			description: "",
+			top: "20%",
+			left: "30%",
+		},prop);
+
+		return this.ready(function(e){
+			add_block_page();
+			add_popup_box();
+			add_styles();
+			
+			$('.paulund_modal_box').fadeIn();
+		});
+		
+		/**
+		 * Add styles to the html markup
+		 */
+		 function add_styles(){			
+			$('.paulund_modal_box').css({ 
+				'position':'absolute', 
+				'left':options.left,
+				'top':options.top,
+				'display':'none',
+				'height': options.height + 'px',
+				'width': options.width + 'px',
+				'border':'1px solid #fff',
+				'box-shadow': '0px 2px 7px #292929',
+				'-moz-box-shadow': '0px 2px 7px #292929',
+				'-webkit-box-shadow': '0px 2px 7px #292929',
+				'border-radius':'10px',
+				'-moz-border-radius':'10px',
+				'-webkit-border-radius':'10px',
+				'background': '#f2f2f2', 
+				'z-index':'50',
+			});
+			$('.paulund_modal_close').css({
+				'position':'relative',
+				'top':'-25px',
+				'left':'20px',
+				'float':'right',
+				'display':'block',
+				'height':'50px',
+				'width':'50px',
+				'background': 'url(img/close.png) no-repeat',
+			});
+			$('.paulund_block_page').css({
+				'position':'absolute',
+				'top':'0',
+				'left':'0',
+				'background-color':'rgba(0,0,0,0.6)',
+				'height':'100%',
+				'width':'100%',
+				'z-index':'10'
+			});
+			$('.paulund_inner_modal_box').css({
+				'background-color':'#fff',
+				'height':(options.height - 50) + 'px',
+				'width':(options.width - 50) + 'px',
+				'padding':'10px',
+				'margin':'15px',
+				'border-radius':'10px',
+				'-moz-border-radius':'10px',
+				'-webkit-border-radius':'10px'
+			});
+		}
+		
+		 /**
+		  * Create the block page div
+		  */
+		 function add_block_page(){
+			var block_page = $('<div class="paulund_block_page"></div>');
+			$(block_page).appendTo('body');
+		}
+		 	
+		 /**
+		  * Creates the modal box
+		  */
+		 function add_popup_box(){
+			 var pop_up = $('<div class="paulund_modal_box"><a href="#" class="paulund_modal_close"></a><div class="paulund_inner_modal_box"><h2>' + options.title + '</h2><p>' + options.description + '</p></div></div>');
+			 $(pop_up).appendTo('.paulund_block_page');
+			 			 
+			 $('.paulund_modal_close').click(function(){
+				$(this).parent().fadeOut().remove();
+				$('.paulund_block_page').fadeOut().remove();				 
+			 });
+		}
+
+		return this;
+	};
+	
+})(jQuery);
+<?php if (!(($er!='') or ($dr!='') or ($drr!='') or ($inf!='') or ($pl!='') or ($pfil!='') or ($tpfil!=''))) {
+?>
+if (document.cookie.indexOf ('first=1')==-1) {
+document.cookie="first=1; path=/; expires="+date5;
+$(document).paulund_modal_box({
+		title:'Welcome. Привет!',
+		description:'Этот сайт - онлайн библиотека мультимедиа файлов. <br/> В отличие от всех аналогичных сайтов тут собрано только лучшее из лучших (хиты в своём жанре) и в максимальном качестве.<br/>Файлы можно не только открыть онлайн, но и скачать. Всё регулярно обновляется так что следите за новинками и плейлистами.<br/>Внизу страницы есть инструкции, как управлять сайтом. Почитайте их обязательно!<br/>С этого сайта вы можете начать создавать свою коллекцию! Вперёд!',
+		height: '400',
+		width: '500'
+	});
+	}
+<?php }?>
 //////////////////////////////////////////////////загрузка файлов\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 		$(function () {
     'use strict';
@@ -906,13 +1032,14 @@ $.fn.contextPopup = function(menuData) {
 					$.ajax({url:encodeURI(t), type: 'GET', cache: false, success:function(data1) {
 					
 						var data='<ul class="jqueryFileTree" style="display: none;">';
-						var i=0, i1=0;
+						var i=0, i1=0; var fill="" , fill1="";
 						do {
 						i=(data1.indexOf ('" alt="[', i));
 						if (i!=-1) {
 						var edf=data1.substring ((i+8), (data1.indexOf ('"', i+8)-1));
 						if ((edf!='DIR') && (edf!='PARENTDIR') && (edf!='ICO')) {
-						var fill=decodeURI(data1.substring (i+32, data1.indexOf ('"', i+32)));
+						fill1=data1.substring (i+32, data1.indexOf ('"', i+32));
+						fill=decodeURI(fill1);
 						
 						var extt=(fill.substring (fill.lastIndexOf ('.')+1, fill.length)).toLowerCase();
 						//Типы файлов для отображения	
@@ -922,11 +1049,12 @@ $.fn.contextPopup = function(menuData) {
 						}
 						i=i+32;}}
 						while (i!=-1);
-						i=0;
+						i=0; var dirr="", dirr1="";
 						do {
 						i=data1.indexOf ('alt="[DIR]"></td><td><a href=\"', i);
 						if (i!=-1) {
-						var dirr=decodeURI(data1.substring (i+30, data1.indexOf ('"', i+30)-1));
+						dirr1=data1.substring (i+30, data1.indexOf ('"', i+30)-1);
+						dirr=decodeURI(dirr1);
 						data=data+'<li class="directory collapsed"><a href="#" rel="'+t+dirr+'/">'+dirr+'</a></li>';
 						i=i+30;
 						i1=i1+1;
@@ -1106,10 +1234,8 @@ $.fn.contextPopup = function(menuData) {
 			$('#next').unbind();
 			$('#next').click(function(){
 			next (idd);
-			});}
-			qa=$('#playlist li:eq('+kor1+')').text();
-			we=(kor1+1)+qa.substring(qa.indexOf(".", 0), qa.length);
-			$('#playlist li:eq('+kor1+')').text(we);
+			});
+			break;}
 			kor1=kor1+1;
 			} 
 			while (kor1<=kor)}   
@@ -1121,7 +1247,7 @@ $.fn.contextPopup = function(menuData) {
 	re='#EXTM3U \n';
 	do {
 	var ddf=$('#playlist li:eq('+k1+')').text();
-	ddf=ddf.substring(ddf.indexOf(".", 0)+2, ddf.length);
+	ddf=ddf.substring(0, ddf.lastIndexOf("."));
 	re=re+'#EXTINF:0,'+ddf+'\n'+'http://'+document.domain+$('#playlist li:eq('+k1+')').attr('title')+'\n';
 	k1=k1+1;
 	}
@@ -1174,7 +1300,7 @@ window.elem=window.elem+1;
 <div class="cont">
 <div class="table1">
   <div class="tr">
-   <div class="td1">Ресурсы</div>
+   <div class="td1"><a href="\res">Ресурсы</a></div>
    <div class="td2">Плейлист</div>
   </div>
 
@@ -1182,6 +1308,7 @@ window.elem=window.elem+1;
 <div class="td3"></div>
 <div class="td6">
     <div class="td4">
+	<div id="gplay"   align="center"><a href="https://play.google.com/store/apps/details?id=com.medialibrary.mycollection"><img id = "gplay"  height="297" src="img/gplay.jpg"/></a></div>
 	<div id="slide" style="display: none" align="center"><img id = "img1"  height="390" src=""/><img id = "img2" width="535" height="390" src="img/loading.gif"/></div>
 <div id="player7" style="display: none" align="center" >
 		<div id="jquery_jplayer_1" class="jp-jplayer" ></div>
@@ -1257,8 +1384,6 @@ window.elem=window.elem+1;
         </div>
         <span>-0:00</span>
     </div>
-    
-    <div class="file_button"></div>
     <span class="file_description">Формат fLaC. Вы слушаете трек в максимальном качестве.</span>
 </div>
 </div>
@@ -1306,10 +1431,11 @@ window.elem=window.elem+1;
 
 <div id="instr" align="center" class="butt1">Инструкция. Если не работает.</div>
 <div id="instr1" align="center" style="display: none">Если не воспроизводит видео значит в браузере не установлен плагин Windows media. Для его установки необходимо нажать на ссылки соответствующие вашему браузеру и выполнить инструкции:
-<a target="blank" href="http://www.interoperabilitybridges.com/wmp-extension-for-chrome">Chrome, Opera 13+</a>
+<a target="blank" href="http://www.interoperabilitybridges.com/wmp-extension-for-chrome">Opera 13+</a>
 <a target="blank" href="http://www.opera.com/docs/plugins/installation/#wmp">Opera 12.2-</a>
 <a target="blank" href="http://www.interoperabilitybridges.com/windows-media-player-firefox-plugin-download">FireFox, Safari</a>
 После скачивания плагинов их необходимо установить.
+<br/>Видео в Chrome не работает.
 <br/>В браузере Internet explorer плагин установлен по умолчанию, если в системе установлен компонент Windows media player 10+. 
 <br/>В браузере Firefox последней версии нужно <a target="blank" href="http://www.interoperabilitybridges.com/windows-media-player-firefox-plugin-download">скачать и установить плагин</a>. После установки в браузере перейти на адрес (скопировать и вставить в адрес):"about:config". 
 <br/>Нажать "я буду остарожен". Найти пункт "plugins.load_appdir_plugins" и два раза кликнуть чтобы изменить его значение на true.
@@ -1326,19 +1452,19 @@ window.elem=window.elem+1;
 </div>
 <div id="instr2" align="center" class="butt1">Инструкция. Если работает.</div>
 <div id="instr3" align="center" style="display: none">
-<center><b>Это коллекция мультимедиа, программ и игр.</b></center>
+<center><b>Это коллекция мультимедиа, программ и игр. (Разработка сайта временно приостановлена. Сейчас идёт разработка android приложения к сайту)</b></center>
 Слева находится дерево файлов, справа - плеер и плейлист. Из дерева можно набросать плейлист и включить его на проигрывание.
 <br/>Есть готовые плейлисты. На всё (файл, папка, плейлист) можно получить ссылку и поделиться с кем-нибудь.
 <br/>Нажимая правой кнопкой по файлам и папкам в дереве и плейлисте с ними можно производить различные действия.
 <br/>Все программы проверены на вирусы и работоспособность. Они постоянно обновляются, как и музыка. 
 <br/>Программы обновляются по необходимости. Музыка и клипы по возможности. 
-<br/>Мультимедиа лучше всего проигрывать в браузере Chrome. 
-<br/>Flac - не перематывается. Это единственный в мире веб плеер flac - и он немного недоработан. 
+<br/>Мультимедиа лучше всего проигрывать в браузере Opera. 
+<br/>Это единственный в мире веб плеер flac - и он немного недоработан. На сегодня некоторые треки не перематываются.
 <br/>Windows Media плеер на весь экран переходит по двойному щелчку по картинке. 
 <br/>Слайдшоу фотографий или картинок: Левая кнопка мыши по изображению - следующий слайд, Правая - перейти на предыдущий слайд, <br/>Средняя кнопка мыши или при нажатии колёсиком - увеличить\сделать на весь экран (Работает не во всех браузерах).
 <br/>В самом низу есть кнопки по загрузке файлов. С помощью них можно отправить мне любые файлы.
-<br/>Сервер на котором работает сайт работает круглосуточно и на нём хранятся файлы из папок с пометкой (всегда). Они в круглосуточном доступе, а вот остальные файлы и папки хранятся на другом компьютере, который работает примерно с 9ти по 00 по Москве.
-Свой плейлист можно сохранить у себя на компе и открыть windows media player и он будет играть его почти так же, как сайт. Не будет проигрываться flac и ещё некоторые форматы. Обратно загрузить на сайт тоже можно.
+<br/>Свой плейлист можно сохранить у себя на компе и открыть windows media player и он будет играть его почти так же, как сайт. Не будет проигрываться flac и ещё некоторые форматы. Обратно загрузить на сайт тоже можно.
+<br/>Пробел - перелёт к проигрываемому треку.
 </div>
 <div id="zagr3" align="center" class="butt1">Загрузить файлы</div>
 <div style="display:none" id="zagr4">
@@ -1487,7 +1613,7 @@ window.elem=window.elem+1;
 <!--[if (gte IE 8)&(lt IE 10)]>
 <script src="js/cors/jquery.xdr-transport.js"></script>
 <![endif]-->
-<div id="bottom" >Masters ©copyright</div>
-<div align="center"><script type="text/javascript" src="http://jj.revolvermaps.com/2/2.js?i=&amp;m=8&amp;s=178&amp;c=00ff6c&amp;t=1" async="async"></script></div>
+<div id="bottom" ><a href="mailto:masters@inbox.ru">Masters ©copyright</a></div>
+<div align="center"><script type="text/javascript" src="http://jj.revolvermaps.com/2/2.js?i=9n3z9c9mhpq&amp;m=8&amp;s=178&amp;c=00ff6c&amp;t=1" async="async"></script></div>
 </body>
 </html><?php } ?>
