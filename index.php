@@ -351,6 +351,7 @@ function run (nam, idd) {
      mp3: encodeURI(nam)
     }).jPlayer("play");
    },
+   solution: "flash, html",
 	ended: function () {
 	next (window.idd); },
 		swfPath: "/js",
@@ -570,34 +571,81 @@ function appen (ffil, pod, m3)
 function plpr (msg){
 ff=0;
 ff1=0;
+extinf=false;
+err=false;
+musicDir2="/Music/";
+musicDir="res/Музыка";
+klipDir2="/Клипы/";
+klipDir="res/Клипы";
+namepls = "", pth = "", ext = "";
 msg=msg.replace(/\r\n|\r|\n/g, "<|>");
-do { 
-ress=msg.substring (msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1 ,msg.indexOf("<|>", msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1));
-ff=msg.indexOf("<|>", msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1);
-ff1=msg.indexOf("<|>", msg.indexOf("<|>", msg.indexOf("<|>", ff)+3)+3);
-rf=msg.substring (msg.indexOf("<|>", ff)+3, msg.indexOf("<|>", msg.indexOf("<|>", ff)+3));
-if (ress.indexOf("/res/")<0) {
-if (((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='flac') || ((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='mp3') || ((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='aac') || ((rf.substring (rf.lastIndexOf ('.')+1, rf.length)).toLowerCase()=='ogg')) { 
-kn=rf.substring (rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\')-2)-2)-2), rf.length);
-var dfg='';
-if ((kn.indexOf ('http://')!=-1)&&(kn.indexOf ('/res/Музыка/')!=-1)) {knn=kn.substring (kn.indexOf ('/res/Музыка/'), kn.length);} else {if (kn.indexOf('Музыка\\')==-1) {dfg='/res/Музыка/';} else {dfg='/res';}
-knn=dfg+kn.replace(/\\/g,'/');
+if (msg.indexOf("#EXTINF") != -1)
+{
+	extinf = true;
+} else
+{
+	extinf = false;
 }
-$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+knn.replace(/'/g,"R493")+"\", $(this).index());' title=\""+knn.replace(/'/g,"R493")+"\">"+ress+"</li>");
+do {
+try {
+if (extinf == true) {
+namepls=msg.substring (msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1 ,msg.indexOf("<|>", msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1));
+ff=msg.indexOf("<|>", msg.indexOf(",", msg.indexOf("#EXTINF:", ff)+8)+1);
+pth=msg.substring (msg.indexOf("<|>", ff)+3, msg.indexOf("<|>", msg.indexOf("<|>", ff)+3));
+pth = pth.replace(/\\/g, "/");
 } else {
-kn=rf.substring (rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\' ,rf.lastIndexOf ('\\')-2)-2)-2), rf.length);
-var dfg='';
-if ((kn.indexOf ('http://')!=-1)&&(kn.indexOf ('/res/Клипы/')!=-1)) {knn=kn.substring (kn.indexOf ('/res/Клипы/'), kn.length);} else {if (kn.indexOf('Клипы\\')==-1) {dfg='/res/Клипы/';} else {dfg='/res';}
-knn=dfg+kn.replace(/\\/g,'/');}
-$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+knn.replace(/'/g,"R493")+"\", $(this).index());' title=\""+knn.replace(/'/g,"R493")+"\">"+ress+"</li>");}
-} else {
-$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+rf.replace(/'/g,"R493")+"\", $(this).index());' title=\""+rf.replace(/'/g,"R493")+"\">"+ress+"</li>");}
-		
+pth = msg.substring(ff1, (msg.indexOf("<|>", ff1)==-1)?msg.length:msg.indexOf("<|>", ff1));
+pth = pth.replace(/\\/g, "/");
+namepls = pth.substring((pth.lastIndexOf("/") != -1) ? pth.lastIndexOf("/") + 1 : 0,pth.length);
+}
+} catch (e)
+{
+err = true;
+}
+if (err == false)
+{
+if (namepls.indexOf("/res/")<0) {
+ext = (pth.substring(pth.lastIndexOf('.') + 1, pth.length)).toLowerCase();
+if ((ext=='flac') || (ext=='mp3') || (ext=='aac') || (ext=='ogg') || (ext=='m4a')) {
+if (pth.indexOf(musicDir2) != -1)
+										{
+											pth = pth.substring(
+													pth.indexOf(musicDir2)
+															+ musicDir2
+																	.length,
+													pth.length);
+										}
+										pth = musicDir + "/" + pth;
+$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+pth.replace(/'/g,"R493")+"\", $(this).index());' title=\""+pth.replace(/'/g,"R493")+"\">"+namepls+"</li>");
+} 
 
+
+else if (
+(ext=='avi') || (ext=='mpeg') || (ext=='flv') || (ext=='mpg') || (ext=='wmv') 
+|| (ext=='mp4') || (ext=='mkv')
+){
+if (pth.indexOf(klipDir2) != -1)
+										{
+											pth = pth.substring(
+													pth.indexOf(klipDir2)
+															+ klipDir2
+																	.length,
+													pth.length);
+										}
+										pth = klipDir + "/" + pth;
+$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+pth.replace(/'/g,"R493")+"\", $(this).index());' title=\""+pth.replace(/'/g,"R493")+"\">"+namepls+"</li>");}
+}
+ else {
+$('#playlist').append( "<li id = 'id"+window.elem+"' class='ui-state-default' onclick='$(\"#playlist li\").css (\"color\", \"#555555\"); $(this).css(\"color\", \"#F16161\"); run(\""+pth.replace(/'/g,"R493")+"\", $(this).index());' title=\""+pth.replace(/'/g,"R493")+"\">"+namepls+"</li>");}
 
 window.elem=window.elem+1;
 window.gh=window.gh+1;
-} while (ff1>0);
+
+if (extinf == true) {ff1=msg.indexOf("<|>", msg.indexOf("<|>", msg.indexOf("<|>", ff)+3)+3);} else {
+ff1 = ((msg.indexOf("<|>", ff1 + 3))!=-1)?(msg.indexOf("<|>", ff1 + 3))+3:-1;
+}
+
+}} while (ff1>0);
 $('.ui-state-default').mousedown(function(eventObject){window.gh=$(this).index();});
         $('.ui-state-default').contextPopup({
           items: [
@@ -1293,7 +1341,7 @@ window.elem=window.elem+1;
 });
 </script>
 </head>
-<body>
+<body class="body1">
 <div id="page">
 <div id="top"><a href="/">Media Library - Master collection (HQ)</a></div>
 <br/>
@@ -1439,7 +1487,7 @@ window.elem=window.elem+1;
 <br/>В браузере Internet explorer плагин установлен по умолчанию, если в системе установлен компонент Windows media player 10+. 
 <br/>В браузере Firefox последней версии нужно <a target="blank" href="http://www.interoperabilitybridges.com/windows-media-player-firefox-plugin-download">скачать и установить плагин</a>. После установки в браузере перейти на адрес (скопировать и вставить в адрес):"about:config". 
 <br/>Нажать "я буду остарожен". Найти пункт "plugins.load_appdir_plugins" и два раза кликнуть чтобы изменить его значение на true.
-<br/>Закрыть фаерфокс. Скопировать папку C:\PFiles\Plugins в C:\Program Files (x86)\Mozilla Firefox. Всё, плагин установлен.
+<br/>Закрыть фаерфокс. Скопировать папку C:\PFiles\Plugins в C:\Program Files (x86)\Mozilla Firefox, если она есть. Зайти в Дополнения -> плагины. Поставить "Всегда включать" на против плагина windows media player. Всё, плагин установлен.
 <br/>Интструкция от медиацентр: <a href="http://www.earthmediacenter.com/ru/windows_media_player_plugin_installation_guide.html" target="blank">Откроется в новом окне</a>
 
 <br/>Установив этот плагин 1 раз видео будет играть всегда!

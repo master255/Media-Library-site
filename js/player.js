@@ -230,25 +230,6 @@ function DGPlayer(root) {
         
     })();
     
-    var filebutton = (function() {
-        
-        var button = root.querySelector('.file_button'),
-            input = document.createElement('input');
-            
-        input.setAttribute('type', 'file');
-        input.style.opacity = 0;
-        input.style.position = 'absolute';
-        input.style.left = '-1000px';
-        
-        input.onchange = function(e) {
-            emit('file', input.files[0]);
-        }
-        
-        button.onclick = function() {
-            input.click();
-        }
-        
-    })();
     
     function emit(event) {
         if (!events[event]) return;
